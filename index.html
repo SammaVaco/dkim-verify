@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self' https://dns.google; img-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <title>Local DKIM verifier</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">PRIVATE · STATIC · AUDITABLE</p>
+      <h1>Check an email’s sender.</h1>
+      <p class="intro">See whether an email’s DKIM signature supports the email address in its From field.</p>
+      <p>A valid DKIM signature is evidence that the sender’s email service processed and sent the message as-is. It is very strong evidence that someone with access to that email account sent it.</p>
+      <p>The verification is done locally, in this browser tab. Your email will not be transmitted over the internet.</p>
+      <p>The signature <i>will not validate</i> unless you have <i>exactly</i> the email contents which were sent. So, for instance, you can't use this with mail received by Proton Mail, because <a href="https://www.reddit.com/r/ProtonMail/comments/109mzl3/any_way_to_see_the_raw_unmodified_original_email/">it changes the <code>.eml</code> files.</a></p>
+    </header>
+
+    <form id="verify-form" class="panel">
+      <label for="email-file">Upload the original <code>.eml</code> file</label>
+      <input id="email-file" type="file" accept=".eml,message/rfc822">
+      <p class="hint">Use “Download original” or “Save as” in your mail app. Maximum 20 MiB.</p>
+      <label for="email-text">Or paste the complete raw email</label>
+      <textarea id="email-text" rows="9" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="DKIM-Signature: …&#10;From: …&#10;To: …&#10;&#10;Message body"></textarea>
+      <p class="hint">Include all headers and the body. Copying, rich-text editors, or a different text encoding can break a signature; uploading preserves the original bytes.</p>
+
+      <label class="checkbox"><input id="dns-fallback" type="checkbox" checked aria-describedby="dns-privacy"> Look up missing keys in DNS</label>
+      <p class="hint" id="dns-privacy">When a key is not in the local collection, ask Google Public DNS for it. Google sees the signing domain, key name, and your IP address—not the email contents. Uncheck for no network requests while verifying. Current DNS may no longer contain keys used for older emails.</p>
+
+      <details>
+        <summary>Historical checks or a missing public key</summary>
+        <label for="verify-date">Check at a known receipt time (UTC, optional)</label>
+        <input id="verify-date" type="datetime-local" step="1">
+        <p class="hint">Leave blank to use now. Only enter a time you independently know: a message’s own Date field is not proof of when it arrived.</p>
+        <p>For an uncovered domain, you may supply one public DNS TXT record. A match against a supplied key does not authenticate its owner.</p>
+        <div class="columns">
+          <div><label for="key-domain">Signing domain (<code>d=</code>)</label><input id="key-domain" type="text" placeholder="example.com" autocomplete="off" spellcheck="false"></div>
+          <div><label for="key-selector">Key name (<code>s=</code>)</label><input id="key-selector" type="text" placeholder="selector" autocomplete="off" spellcheck="false"></div>
+        </div>
+        <label for="key-record">Public DNS TXT record</label>
+        <textarea id="key-record" rows="3" spellcheck="false" placeholder="v=DKIM1; k=rsa; p=…"></textarea>
+        <label for="key-citation">Source link (HTTPS, optional)</label>
+        <input id="key-citation" type="url" placeholder="https://…" autocomplete="off">
+      </details>
+
+      <div class="actions">
+        <button id="verify-button" type="submit" disabled>Check signatures</button>
+        <button id="clear-button" type="reset" class="secondary">Clear</button>
+      </div>
+      <p id="input-status" role="status" aria-live="polite">Loading the local key catalogue…</p>
+    </form>
+
+    <section id="results" aria-live="polite" aria-label="Verification results"></section>
+
+    <details class="panel" id="coverage">
+      <summary>Which providers and years are covered?</summary>
+      <p><strong>This is an incomplete historical collection.</strong> It includes available public records, including older keys, for the providers listed below. It does not establish complete coverage for every key used in the past five years. Company and custom-domain accounts can use their own keys.</p>
+      <p id="catalogue-summary"></p>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Provider</th><th>Signing domains</th><th>Records</th><th>Earliest DNS observation</th></tr></thead>
+        <tbody id="coverage-rows"></tbody>
+      </table></div>
+      <p>DNS observation dates describe the archive’s sightings; they do not prove uninterrupted publication. Some older keys were reconstructed from email signatures, which does not prove a domain published them. These matches are labeled separately.</p>
+      <p><a href="COVERAGE.md">Detailed coverage</a> · <a href="keys.json">Exact key catalogue</a> · <a href="https://github.com/zkemail/archive/blob/aeff0fa5002d0e3b5f51d3edb54ec8c15cc575a0/docs/signed-observations.md" target="_blank" rel="noopener noreferrer">Archive provenance explanation</a></p>
+    </details>
+
+    <footer>
+      <p>A valid signature does not prove who wrote the email, whether its claims are true, or that every header was signed. This tool checks DKIM, not SPF, DMARC, or ARC. Archived keys can verify old signatures after removal from DNS; this is not a live mail-delivery verdict.</p>
+      <p>No email uploads, analytics, or third-party scripts. The page loads its bundled catalogue. When enabled, missing-key lookups send only DNS names to Google Public DNS; cryptographic checks stay local. Following a citation opens its source.</p>
+      <p><a href="README.md">Read the audit and deployment guide</a> · <a href="dkim.js">Verifier source</a> · <a href="dns.js">DNS lookup source</a> · <a href="app.js">Interface source</a> · <a href="https://www.rfc-editor.org/rfc/rfc6376.html" target="_blank" rel="noopener noreferrer">DKIM standard</a></p>
+    </footer>
+  </main>
+</body>
+</html>

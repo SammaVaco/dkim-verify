@@ -1,0 +1,14 @@
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=example.test;
+ i=@example.test; q=dns/txt; s=demo; t=1767225600; h=from : to : date :
+ subject; bh=IYs6mAcukH6WZP9HzM2oRWIYtAx5T8CyTDPPmbYwHso=;
+ b=U7lnGpxGokdvGHPLHAN4WfPoV2n6UoA2NjC9n8EBEDJrDqJ2qdWTjb+yurKdpcP86EYho
+ K3N9EIdGRIjE0k52sKzu3f3CvlTO6gY77/S8DNVHPEvCDMUKOTJpO+ZAXsFo9zIzDcGivvH
+ goYD/XHKmVq517cPnkeoa+JQ186UxB6e+/bv3tNpaMPDzOtFLSJmqHn8KdapO7G6zIG1Fzm
+ m5DETuugQ+C1hnzEnyL2d+NHHV8VA6m3GXjAWAHMT+2m99iILjM1IQVPtRWgE5HPDieOUWx
+ 526tc0veanCQsiR4VU08I4+7NicHXZOa43q+Ll9XpW+yRkAvrPJLGzaQ7QyA==
+From: Alice <alice@example.test>
+To: Bob <bob@example.test>
+Date: Thu, 01 Jan 2026 00:00:00 +0000
+Subject: DKIM From test
+
+Hello, Bob.
